@@ -6,7 +6,6 @@ import (
 	"fmt"
 	_ "github.com/lib/pq"
 	"net/http"
-	"strings"
 	"time"
 )
 
@@ -23,7 +22,7 @@ type Note struct {
 
 func GetNotes(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	// Get query params for book
-	book := strings.Join(r.Form["book"], "")
+	book := r.FormValue("book")
 
 	fmt.Println("Querying", book)
 

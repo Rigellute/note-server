@@ -3,10 +3,11 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	_ "github.com/lib/pq"
-	"github.com/rigellute/note-server/httpMethods"
 	"log"
 	"net/http"
+
+	_ "github.com/lib/pq"
+	"github.com/rigellute/note-server/httpMethods"
 )
 
 func main() {
