@@ -15,8 +15,15 @@ func main() {
 	db := setUpDB()
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		httpMethods.Homepage(w, r, db)
+	})
+
+	http.HandleFunc("/notes", func(w http.ResponseWriter, r *http.Request) {
 		handleNotes(w, r, db)
-	}) // set router
+	})
+
+	http.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("./assets"))))
+
 	err := http.ListenAndServe(":3001", nil) // set listen port
 	if err != nil {
 		panic(err)
@@ -40,10 +47,10 @@ func handleNotes(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 }
 
 func setUpDB() *sql.DB {
-	const dbUrl = `postgresql://localhost/go_notes?sslmode=disable`
+	const dbURL = `postgresql://localhost/go_notes?sslmode=disable`
 
 	// Update global db variable (this does not create db connection)
-	db, err := sql.Open("postgres", dbUrl)
+	db, err := sql.Open("postgres", dbURL)
 	if err != nil {
 		log.Fatal(err)
 	}

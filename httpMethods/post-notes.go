@@ -3,10 +3,13 @@ package httpMethods
 import (
 	"database/sql"
 	"fmt"
-	_ "github.com/lib/pq"
 	"net/http"
+	"net/url"
+	// for accessing postgres
+	_ "github.com/lib/pq"
 )
 
+// PostNotes used in main.go HandleFunc
 func PostNotes(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	book := r.FormValue("book")
 
@@ -53,5 +56,12 @@ func PostNotes(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		return
 	}
 
-	fmt.Fprintf(w, "Note %s created successfully in Book %s (%d row affected)\n", note, book, rowsAffected)
+	fmt.Println("Rows affected", rowsAffected)
+
+	form, _ := url.ParseQuery(r.URL.RawQuery)
+	form.Add("resType", "html")
+	r.URL.RawQuery = form.Encode()
+
+	// success so return the get notes query
+	GetNotes(w, r, db)
 }

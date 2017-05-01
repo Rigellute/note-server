@@ -1,6 +1,63 @@
-<ul>
-  {{ range . }}
-  <li>
-    {{.}}
-  </li>
-</ul>
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/semantic-ui/2.2.10/semantic.min.css">
+  <title>Notes</title>
+
+  <link rel="stylesheet" type="text/css" href="/assets/css/main.css">
+</head>
+<body>
+
+  <div class="ui inverted vertical masthead center aligned segment background-image">
+    <div class="ui container">
+      <div class="ui large secondary inverted menu">
+        <a href="/" class="item">Select notebook</a>
+      </div>
+    </div>
+
+    <div class="ui text container">
+      <h1 class="ui inverted header">
+        Notebook
+      </h1>
+      <h2>{{ .Title }}</h2>
+    </div>
+
+  </div>
+
+  <div class="ui vertical stripe segment">
+    <div class="ui middle aligned stackable grid container">
+      <div class="row">
+        <div class="eight wide column">
+          <div class="ui divided items">
+            {{ range .Notes }}
+            <p class="item">{{.NoteContent}}</p>
+            {{ end }}
+          </div>
+        </div>
+        <form action="/notes" method="post" class="six wide right floated column">
+          <div class="ui form">
+            <div class="field">
+              <label for="note">Notebook</label>
+              <input name="book" id="book" value={{ .Title }}>
+            </div>
+            <div class="field">
+              <label for="note">Create a new note</label>
+              <textarea name="note"></textarea>
+            </div>
+            <div class="field">
+              <button class="ui button">
+                Save Note
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/semantic-ui/2.2.10/semantic.min.js"></script>
+</body>
+</html>

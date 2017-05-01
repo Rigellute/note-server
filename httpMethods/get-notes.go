@@ -4,9 +4,12 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	_ "github.com/lib/pq"
+	"html/template"
 	"net/http"
+	"path/filepath"
 	"time"
+	// Required for postgres query
+	_ "github.com/lib/pq"
 )
 
 /**
@@ -15,16 +18,26 @@ import (
  * needs these exported methods to be visible
  */
 
-type Note struct {
-	Note_content string    `json:"note_content"`
-	Created_at   time.Time `json:"created_at"`
+type note struct {
+	NoteContent string    `json:"note_content"`
+	CreatedAt   time.Time `json:"created_at"`
+	Book        string    `json:"book"`
 }
 
-func GetNotes(w http.ResponseWriter, r *http.Request, db *sql.DB) {
-	// Get query params for book
-	book := r.FormValue("book")
+type bookStruct struct {
+	Title string  `json:"title"`
+	Notes []*note `json:"notes"`
+}
 
-	fmt.Println("Querying", book)
+// GetNotes is used int main.go
+func GetNotes(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+
+	// HACK: On the homepage there are to inputs name book so get one or the other
+	book := r.Form["book"][0]
+
+	if book == "" {
+		book = r.Form["book"][1]
+	}
 
 	rows, err := db.Query(`
     SELECT note_content, notes.created_at
@@ -38,17 +51,16 @@ func GetNotes(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		return
 	}
 
-	// Create slice of Notes
-	notes := make([]*Note, 0)
+	// Create slice of notes from postgres
+	notes := make([]*note, 0)
 
 	for rows.Next() {
 		// Create new Note struct
-		note := new(Note)
+		note := new(note)
 
 		// Check the rows for Note struct property
-		err := rows.Scan(&note.Note_content, &note.Created_at)
-		if err != nil {
-			http.Error(w, http.StatusText(500), 500)
+		if err = rows.Scan(&note.NoteContent, &note.CreatedAt); err != nil {
+			http.Error(w, err.Error(), 500)
 			return
 		}
 
@@ -56,19 +68,37 @@ func GetNotes(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		notes = append(notes, note)
 	}
 
-	if err := rows.Err(); err != nil {
+	if err = rows.Err(); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	jsNotes, err := json.Marshal(notes)
+	bookWithData := bookStruct{Title: book, Notes: notes}
+
+	// default return type is html, but json is allowed
+	if r.FormValue("resType") == "json" {
+		var jsNotes []byte
+		jsNotes, err = json.Marshal(bookWithData)
+		if err != nil {
+			fmt.Println(err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(jsNotes)
+		return
+	}
+
+	absHTMLPath, _ := filepath.Abs("../note-server/html/note-list.html")
+
+	var t *template.Template
+	t, err = template.ParseFiles(absHTMLPath)
 	if err != nil {
-		fmt.Println(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.Write(jsNotes)
+	t.Execute(w, bookWithData)
 
 }
