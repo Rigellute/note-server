@@ -20,6 +20,7 @@ func Homepage(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	rows, err := db.Query(`
     SELECT title
     FROM books
+    ORDER BY created_at DESC
   `)
 
 	if err != nil {
@@ -50,6 +51,7 @@ func Homepage(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		return
 	}
 
+	// Get the absolute path to the template
 	absHTMLPath, _ := filepath.Abs("../note-server/html/book-list.html")
 
 	var t *template.Template
@@ -59,6 +61,7 @@ func Homepage(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		return
 	}
 
+	// Send the template
 	t.Execute(w, books)
-
+	return
 }

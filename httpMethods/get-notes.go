@@ -19,6 +19,7 @@ import (
  */
 
 type note struct {
+	ID          int       `json:"id"`
 	NoteContent string    `json:"note_content"`
 	CreatedAt   time.Time `json:"created_at"`
 	Book        string    `json:"book"`
@@ -40,10 +41,13 @@ func GetNotes(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	}
 
 	rows, err := db.Query(`
-    SELECT note_content, notes.created_at
+    SELECT notes.id, note_content, notes.created_at
     FROM books
     JOIN notes ON notes.book_id = books.id
-    WHERE title ILIKE $1;`, book)
+    WHERE title ILIKE $1
+    ORDER BY notes.created_at
+    DESC
+    ;`, book)
 
 	if err != nil {
 		fmt.Println(err)
@@ -58,13 +62,12 @@ func GetNotes(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		// Create new Note struct
 		note := new(note)
 
-		// Check the rows for Note struct property
-		if err = rows.Scan(&note.NoteContent, &note.CreatedAt); err != nil {
+		// Check the rows for Note struct properties
+		if err = rows.Scan(&note.ID, &note.NoteContent, &note.CreatedAt); err != nil {
 			http.Error(w, err.Error(), 500)
 			return
 		}
-
-		// Add the full Note struct to Notes slice
+		// Construct the note struct
 		notes = append(notes, note)
 	}
 

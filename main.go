@@ -14,14 +14,17 @@ func main() {
 	// Create the db connection
 	db := setUpDB()
 
+	// Homepage
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		httpMethods.Homepage(w, r, db)
 	})
 
+	// GET and POST notes
 	http.HandleFunc("/notes", func(w http.ResponseWriter, r *http.Request) {
 		handleNotes(w, r, db)
 	})
 
+	// Create static file assets for e.g. images and css
 	http.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("./assets"))))
 
 	err := http.ListenAndServe(":3001", nil) // set listen port

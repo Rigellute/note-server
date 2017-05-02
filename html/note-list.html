@@ -26,9 +26,10 @@
   </div>
 
   <div class="ui vertical stripe segment">
-    <div class="ui middle aligned stackable grid container">
-      <div class="row">
+    <div class="ui stackable grid container">
+      <div class="two column row">
         <div class="eight wide column">
+          <h1 class="header">Notes</h1>
           <div class="ui divided items">
             {{ range .Notes }}
             <p class="item">{{.NoteContent}}</p>
@@ -36,6 +37,7 @@
           </div>
         </div>
         <form action="/notes" method="post" class="six wide right floated column">
+          <h1 class="header">Compose</h1>
           <div class="ui form">
             <div class="field">
               <label for="note">Notebook</label>
