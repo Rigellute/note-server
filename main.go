@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-
 	_ "github.com/lib/pq"
 	"github.com/rigellute/note-server/httpMethods"
 )

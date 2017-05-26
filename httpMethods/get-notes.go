@@ -33,7 +33,7 @@ type bookStruct struct {
 // GetNotes is used int main.go
 func GetNotes(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 
-	// HACK: On the homepage there are to inputs name book so get one or the other
+	// HACK: On the homepage there are two inputs named book so get one or the other
 	book := r.Form["book"][0]
 
 	if book == "" {
